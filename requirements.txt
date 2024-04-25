@@ -2,3 +2,10 @@ streamlit
 huggingface
 transformers
 torch
+pillow
+python-dotenv
+requests
+langchain
+langchain_community
+json
+base64

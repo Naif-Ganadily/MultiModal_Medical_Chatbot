@@ -1,0 +1,33 @@
+# Conda Environment Setup Instructions
+
+## Step 1: Create the Conda Environment
+- Create a new environment named 'venv' with Python 3.10:
+  conda create -n venv python=3.10
+
+## Step 2: Activate the Environment
+- Activate the created environment:
+  conda activate venv
+
+## Step 3: Install Required Packages
+- Install packages via Conda:
+  conda install numpy flask
+- If some packages are only available via pip, install them as follows:
+  pip install some-package
+
+## Step 4: Export the Environment
+- Once all necessary packages are installed, export the environment to a YAML file:
+  conda env export > environment.yml
+
+## Step 5: Commit the Environment File to Your Repository
+- Add the environment file to your Git repository and commit:
+  git add environment.yml
+  git commit -m "Add Conda environment file"
+  git push
+
+## Step 6: Recreate Environment from the YAML File
+- To recreate the environment on a different machine, use the YAML file:
+  conda env create -f environment.yml
+
+## Step 7: Activate the Newly Created Environment
+- Activate the environment that was created from the YAML file:
+  conda activate venv
