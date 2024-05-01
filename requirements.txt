@@ -1,11 +1,11 @@
 streamlit
 huggingface
 transformers
+google.generativeai
 torch
 pillow
 python-dotenv
 requests
 langchain
 langchain_community
-json
-base64
+fpdf

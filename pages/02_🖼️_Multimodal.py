@@ -1,14 +1,10 @@
 # Multimodal Interface
 import streamlit as st
-import base64
 from PIL import Image
 from io import BytesIO
-import json
+import base64
 from utilities.icon import page_icon
-from multimodal import initialize_image_model, analyze_image
-
-
-
+from multimodal import get_gemini_response
 
 
 st.set_page_config(
@@ -32,37 +28,65 @@ def get_allowed_model_names(models_info: dict) -> tuple:
         if model in [m["name"] for m in models_info["models"]]
     )
 '''
+def display_chat_messages(container, messages):
+    for message in messages:
+        role = message["role"]
+        content = message["content"]
+        avatar = "🖼️" if role == "assistant" else "👨‍⚕️"
+        with container:
+            st.markdown(f"{avatar} {role.capitalize()}: {content}")
+
+
+
+
+
+
+
 
 def main():
     page_icon("🧊")
-    st.subheader("Medical Image Analysis", divider="red", anchor=False)
+    st.subheader("Medical Image Analysis", divider="red")
 
-    # Initialize the HuggingFace model for image analysis
-    model, feature_extractor = initialize_image_model()
+    if "chat_messages" not in st.session_state:
+        st.session_state.chat_messages = []
 
-    if "uploaded_file_state" not in st.session_state:
-        st.session_state.uploaded_file_state = None
+    col1, col2 = st.columns(2)
 
-    uploaded_file = st.file_uploader("Upload an image for analysis", type=["png", "jpg", "jpeg"])
-    if uploaded_file is not None:
-        image = Image.open(BytesIO(uploaded_file.read()))
-        st.session_state.uploaded_file_state = uploaded_file.getvalue()
-        st.image(image, caption="Uploaded image")
+    with col2:
+        container1 = st.container()
+        uploaded_file = st.file_uploader("Upload an image for analysis", type=["png", "jpg", "jpeg"], key="file_uploader")
+        if uploaded_file is not None:
+            image = Image.open(BytesIO(uploaded_file.getvalue()))
+            st.session_state.uploaded_file_state = uploaded_file.getvalue()
+            with container1:
+                st.image(image, caption="Uploaded image")
 
-    if st.button("Analyze Image"):
-        with st.spinner("Analyzing the image..."):
-            result = analyze_image(model, feature_extractor, image)
-            st.write("Analysis Result:", result)
-
-    # The rest of the existing code managing model downloads and chat remains mostly unchanged
-    # You may need to adjust this part to properly manage HuggingFace models
+    with col1:
+        container2 = st.container()
+        display_chat_messages(container2, st.session_state.chat_messages)
+        user_input = st.text_input("Ask a question about the image:", key="user_input")
+        
+        if st.button("Analyze", key="analyze_button"):
+            if uploaded_file is not None and user_input:
+                st.session_state.chat_messages.append({"role": "user", "content": user_input})
+                image_base64 = img_to_base64(image)
+                response_text = get_gemini_response(user_input, image_base64)
+                st.session_state.chat_messages.append({"role": "assistant", "content": response_text})
+                display_chat_messages(container2, st.session_state.chat_messages)
 
 if __name__ == "__main__":
     main()
 
 
+
+
+
+
+
+
+
+
 '''
- 
 def main():
     page_icon("🧊")
     st.subheader("Medical Image Analysis", divider="red", anchor=False)

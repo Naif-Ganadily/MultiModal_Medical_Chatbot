@@ -1,17 +1,23 @@
-# Multimodal from huggingface
-from transformers import AutoModelForImageClassification, AutoFeatureExtractor
-import torch
+# multimodal.py
+import os
+from dotenv import load_dotenv
+import requests  # Assuming requests to handle API calls if it's a REST API
 
-def initialize_image_model(model_name='huggingface/medical-model-name'):
-    # Load the model and its feature extractor
-    model = AutoModelForImageClassification.from_pretrained(model_name)
-    feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
-    return model, feature_extractor
+# Load environment variables
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(dotenv_path)
 
-def analyze_image(model, feature_extractor, image):
-    # Preprocess the image and make predictions
-    inputs = feature_extractor(images=image, return_tensors="pt")
-    outputs = model(**inputs)
-    predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)
-    top_prediction = predictions.argmax(-1)
-    return feature_extractor.id2label[top_prediction.item()]
+api_key = os.getenv("GEMINI_API_KEY")
+
+def get_gemini_response(input_prompt, image):
+    # Assume Gemini API expects JSON data with image in base64 and text
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "prompt": input_prompt,
+        "image": image  # image expected to be in base64
+    }
+    response = requests.post('https://api.gemini.com/generate', headers=headers, json=data)
+    return response.json().get('text', '')  # Ensure to parse response correctly
