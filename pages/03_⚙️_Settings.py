@@ -1,7 +1,7 @@
 # Settings for the Multimodal and Chat Interface
 
 import streamlit as st
-import time import sleep
+from time import sleep
 from utilities.icon import page_icon
 
 st.set_page_config(

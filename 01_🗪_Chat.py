@@ -1,13 +1,9 @@
 # Home Page
 import streamlit as st
-import sys
-import streamlit as st
-from transformers import pipeline
-from PIL import Image
-sys.path.append('..')
-# from models folder import chatmodel.py to get the askme function
-from models.chatmodel import askme
+from models.chatmodel import initialize_chat_model, get_model_response
 
+# Initialize the chat model
+generator = initialize_chat_model()
 
 
 st.set_page_config(
@@ -32,25 +28,55 @@ def extract_model_names(models_info: list) -> tuple:
 
 
 def page_icon(emoji: str):
+    st.write(f'<span style="font-size: 78px; line-height: 1">{emoji}</span>', unsafe_allow_html=True)
+
+
+
+
+def main():
     """
-    Shows an emoji as a Notion-style page icon.
-
-    :param emoji: The emoji to display.
-
-    Returns:
-        None
+    The main function that runs the application.
     """
+    page_icon("🗪")
+    st.subheader("Medical Chat Playground")
 
-    st.write(
-        f'<span style="font-size: 78px; line-height: 1">{emoji}</span>',
-        unsafe_allow_html=True,
-    )
+    message_container = st.container(height=500, border=True)
+
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = []
+
+    for message in st.session_state.messages:
+        avatar = "🤖" if message["role"] == "assistant" else "😎"
+        with message_container:
+            st.markdown(f"{avatar} {message['content']}")
+
+    prompt = st.text_input("Enter a prompt here...")
+    if prompt and st.button("Send"):
+        st.session_state.messages.append(
+            {"role": "user", "content": prompt}
+        )
+
+        with message_container:
+            st.markdown(f"😎 {prompt}")
+
+        with st.spinner("AI is thinking..."):
+            # Get response from the HuggingFace model
+            response = get_model_response(generator, prompt)
+            st.session_state.messages.append(
+                {"role": "assistant", "content": response}
+            )
+
+        # Display response
+        with message_container:
+            st.markdown(f"🤖 {response}")
+
+if __name__ == "__main__":
+    main()
 
 
 
 
-
-
+'''
 def main():
     """
     The main function that runs the application.
@@ -114,3 +140,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+'''
