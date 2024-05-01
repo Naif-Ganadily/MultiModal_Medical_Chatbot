@@ -1,7 +1,6 @@
 # Multimodal from huggingface
+from transformers import pipeline
+from PIL import Image
 
-import torch
-import transformers
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-#
+image_classifier = pipeline(task="image-classification", model="julien-c/hotdog-not-hotdog")

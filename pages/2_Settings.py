@@ -1,1 +1,0 @@
-# Settings for the Multimodal and Chat Interface
